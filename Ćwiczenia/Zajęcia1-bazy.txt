@@ -1,0 +1,96 @@
+select @@VERSION
+select * from HumanResources.Department;
+
+select * from HumanResources.Employee
+
+select * from Person.Person
+
+select p.BusinessEntityID,p.FirstName,p.LastName,e.BirthDate,e.Gender,e.JobTitle
+from Person.Person p join HumanResources.Employee e
+	on p.BusinessEntityID=e.BusinessEntityID join
+	HumanResources.EmployeeDepartmentHistory edh
+	on edh.BusinessEntityID=e.BusinessEntityID join
+	HumanResources.Department d on d.DepartmentID=edh.DepartmentID
+	order by p.LastName;
+
+zad 1
+select p.Name, ps.Name, pc.Name
+from Production.Product p
+join Production.ProductSubcategory ps on p.ProductSubcategoryID=ps.ProductSubcategoryID
+join Production.ProductCategory pc on ps.ProductCategoryID=pc.ProductCategoryID;
+
+zad2
+--Wyœwietl imiê (Person.Person.FirstName) i nazwisko ((Person.Person.LastName)) najstarszego pracownika
+-- (data urodzenia jest w HumanResources.Employee.BirthDate)
+
+select p.FirstName, p.LastName
+from Person.Person p join HumanResources.Employee e on p.BusinessEntityID=e.BusinessEntityID
+where e.BirthDate in (select min(e1.BirthDate)
+						from HumanResources.Employee e1);
+
+zad3
+select e.BusinessEntityID, eph.Rate
+from HumanResources.Employee e join HumanResources.EmployeePayHistory eph 
+on e.BusinessEntityID=eph.BusinessEntityID
+where eph.ModifiedDate in (select max(eph1.ModifiedDate)
+							from HumanResources.EmployeePayHistory eph1
+							where eph1.BusinessEntityID=eph.BusinessEntityID);
+
+Zad4
+--Wyœwietl departamenty maj¹ce w nazwie literê 'r' na drugiej pozycji i zatrudniaj¹ce powy¿ej 50 osób.
+
+select d.Name, count(e.BusinessEntityID)
+from HumanResources.Department d 
+join HumanResources.EmployeeDepartmentHistory edh on d.DepartmentID=edh.DepartmentID
+join HumanResources.Employee e on e.BusinessEntityID=edh.BusinessEntityID 
+where d.Name like '_r%'
+group by d.Name
+having count(e.BusinessEntityID)>50;
+
+Zad5.
+--Wyœwietl pracowników (imiê i nazwisko, stawka godzinowa), których stawka godzinowa jest wiêksza od 25.
+--(U¿uj tabel Person.Person, HumanResources.EmployeePayHistory)
+
+
+select p.FirstName, p.LastName, eph.Rate
+from Person.Person p
+join HumanResources.EmployeePayHistory eph on p.BusinessEntityID=eph.BusinessEntityID
+where eph.Rate>25;
+
+Zad 6
+--Wyœwietl departamenty zatrudniaj¹ce najmniej osób razem z liczb¹ ich pracowników.
+select d.Name,COUNT(*)
+from HumanResources.Department d join HumanResources.EmployeeDepartmentHistory edh
+     on d.DepartmentID=edh.DepartmentID
+group by d.Name
+having COUNT(*) = (select min(c) from (select COUNT(*) c
+                   from HumanResources.EmployeeDepartmentHistory
+                   group by DepartmentID) tab)
+
+
+Zad 7
+--Wyœwietl nazwy (Production.Product.Name), ceny (Production.Product.ListPrice) i podkategorie 
+--produktów (Production.ProductSubcategory.Name),które s¹ najdro¿sze w swoich podkategoriach.
+
+select p.Name, p.ListPrice, ps.NAme
+from Production.Product p
+join Production.ProductSubcategory ps on p.ProductSubcategoryID=ps.ProductSubcategoryID
+where p.ListPrice in (select max(p1.ListPrice)
+from Production.Product p1
+join Production.ProductSubcategory ps1 on p1.ProductSubcategoryID=ps1.ProductSubcategoryID
+where ps.ProductSubcategoryID=ps1.ProductSubcategoryID);
+
+Zad 8
+--Wyœwietl historiê zatrudnienia pracówników (Person.Person.FirstName, Person.Person.LastName, 
+--HumanResources.DepartmentName, ), których zatrudniano co najmniej dwukrotnie 
+
+Select p.FirstName, p.LastName, hp.Name, count(p.BusinessEntityID)
+from Person.Person p 
+join HumanResources.EmployeeDepartmentHistory edh on p.BusinessEntityID=edh.BusinessEntityID
+join HumanResources.Department hp on hp.DepartmentID=edh.DepartmentID
+group by p.FirstName, p.LastName, hp.Name;
+
+Zad 9
+
+
+

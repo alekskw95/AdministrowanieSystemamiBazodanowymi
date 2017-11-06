@@ -1,0 +1,61 @@
+﻿select @@VERSION
+select * from HumanResources.Department;
+
+select * from HumanResources.Employee
+
+select * from Person.Person
+
+select p.BusinessEntityID,p.FirstName,p.LastName,e.BirthDate,e.Gender,e.JobTitle
+from Person.Person p join HumanResources.Employee e
+	on p.BusinessEntityID=e.BusinessEntityID join
+	HumanResources.EmployeeDepartmentHistory edh
+	on edh.BusinessEntityID=e.BusinessEntityID join
+	HumanResources.Department d on d.DepartmentID=edh.DepartmentID
+	order by p.LastName;
+
+zad 1
+select p.Name, ps.Name, pc.Name
+from Production.Product p
+join Production.ProductSubcategory ps on p.ProductSubcategoryID=ps.ProductSubcategoryID
+join Production.ProductCategory pc on ps.ProductCategoryID=pc.ProductCategoryID;
+
+zad2
+--Wyświetl imię (Person.Person.FirstName) i nazwisko ((Person.Person.LastName)) najstarszego pracownika
+-- (data urodzenia jest w HumanResources.Employee.BirthDate)
+
+select p.FirstName, p.LastName
+from Person.Person p join HumanResources.Employee e on p.BusinessEntityID=e.BusinessEntityID
+where e.BirthDate in (select min(e1.BirthDate)
+						from HumanResources.Employee e1);
+
+zad3
+select e.BusinessEntityID, eph.Rate
+from HumanResources.Employee e join HumanResources.EmployeePayHistory eph 
+on e.BusinessEntityID=eph.BusinessEntityID
+where eph.ModifiedDate in (select max(eph1.ModifiedDate)
+							from HumanResources.EmployeePayHistory eph1
+							where eph1.BusinessEntityID=eph.BusinessEntityID);
+
+Zad4
+--Wyświetl departamenty mające w nazwie literę 'r' na drugiej pozycji i zatrudniające powyżej 50 osób.
+
+select d.Name, count(e.BusinessEntityID)
+from HumanResources.Department d 
+join HumanResources.EmployeeDepartmentHistory edh on d.DepartmentID=edh.DepartmentID
+join HumanResources.Employee e on e.BusinessEntityID=edh.BusinessEntityID 
+where d.Name like '_r%'
+group by d.Name
+
+
+Zad5
+select p.FirstName, p.LastName, emp.Rate
+from Person.Person p join HumanResources.EmployeePayHistory emp on p.BusinessEntityID=emp.BusinessEntityID
+where emp.Rate>25;
+
+Zad
+select p.Name, p.ListPrice, ps.Name
+from Production.Product p join Production.ProductSubcategory ps 
+on p.ProductSubcategoryID=ps.ProductSubcategoryID
+where p.ListPrice=(select max(p1.ListPrice)
+					from Production.Product p1 join Production.ProductSubcategory ps1
+					on p1.ProductSubcategoryID=ps1.ProductSubcategoryID)
